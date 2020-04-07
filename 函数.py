@@ -110,3 +110,133 @@ def power(x, n=2):
 a = power(2)
 print(a)
 print(power(2, 2))
+
+"""
+默认参数的坑，默认参数必须指向不可变对象
+"""
+
+
+def add_end(L=[]):
+    L.append('END')
+    return L
+
+
+'''
+可以看出每次针对默认参数添加的都是基于上一次的计算结果
+这显然是不符合实际应用的，对于list默认指向一个对象，
+而每次对其操作因为其是可变对象，所以指向的内容都发生了变化
+'''
+print(add_end())  # ['END']
+print(add_end())  # ['END', 'END']
+print(add_end())  # ['END', 'END', 'END']
+
+"""
+优化实现，用None这个不变对象实现
+好处是可以避免在并发环境中的读写问题
+"""
+
+# def add_end(L=None):
+#     if L is None:
+#         L = []
+#     L.append('END')
+#     return L
+
+
+"""
+可变参数函数定义
+"""
+
+
+def calc(*numbers):
+    s = 0
+    for i in numbers:
+        s = s + i ** 2
+    return s
+
+
+# call
+# print(calc([1, 2, 3]))
+print(calc(1, 2, 3))
+print(calc(*[1, 2, 3]))  # 当使用可变参数同样想传入一个list或tuple可以使用该形式
+
+"""
+关键字参数
+关键字参数定义形式和可变参数类似，不同的是关键字参数将对应的参数转化为dict而不是list或tuple
+"""
+
+
+def student(name, age, **other):
+    print('name:', name)
+    print('age:', age)
+    print('other', other)
+
+
+student('wjq', 20, gender='Male', city='hebei')
+
+"""
+命名关键字参数
+利用*进行分隔，*后的参数视为命名关键字参数
+"""
+
+
+def student1(name, age, *, city, job):
+    print(name, age, city, job)
+
+
+# 如果参数列表有一个可变参数，则后面命名关键字参数不需要加*
+def student2(name, age, *department, city, job):
+    print(name, age, department, city, job)
+
+
+student1('wjq', 15, city='zjk', job='t')
+'''
+TypeError: student1() takes 2 positional arguments but 3 positional arguments 
+(and 1 keyword-only argument) were given
+'''
+# student1('wjq', 15, 'zjk', job='t') 实现了关键字参数名称限制
+
+'''
+TypeError: student2() missing 1 required keyword-only argument: 'city'
+可以看到从可变参数之后的参数都为命名关键字参数
+'''
+# student2('wjq', 15, 'zjk', job='t')
+
+
+'''
+练习
+'''
+
+
+def product(*args):
+    if len(args) == 0:
+        raise TypeError("no nums to calculate")
+    mul = 1
+    for i in args:
+        if not isinstance(i, (int, float)):
+            raise TypeError("par not format")
+        mul = mul * i
+
+    return mul
+
+
+# 测试
+# product()
+# product('abc')
+print('product(5) =', product(5))
+print('product(5, 6) =', product(5, 6))
+print('product(5, 6, 7) =', product(5, 6, 7))
+print('product(5, 6, 7, 9) =', product(5, 6, 7, 9))
+if product(5) != 5:
+    print('测试失败!')
+elif product(5, 6) != 30:
+    print('测试失败!')
+elif product(5, 6, 7) != 210:
+    print('测试失败!')
+elif product(5, 6, 7, 9) != 1890:
+    print('测试失败!')
+else:
+    try:
+        product()
+        print('测试失败!')
+    except TypeError:
+        print('测试成功!')

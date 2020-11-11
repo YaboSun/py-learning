@@ -27,10 +27,9 @@ def logger(logger_level):
     """设计一个decorator，可以作用于任何函数上，并打印该函数的执行时间"""
 
     def decorator(func):
-        start_time = time()
-
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
+            start_time = time()
             r = func(*args, **kwargs)
             print("call {} cost {} ms".format(func.__name__, 1000 * (time() - start_time)))
             return r
